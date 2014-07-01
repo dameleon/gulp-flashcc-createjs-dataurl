@@ -1,0 +1,29 @@
+{
+  "name": "gulp-flashcc-createjs-dataurl",
+  "version": "0.0.0",
+  "description": "Converted to DataURL, the images of manifest in output from Flash CC for CreateJS.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dameleon/gulp-flashcc-createjs-dataurl.git"
+  },
+  "keywords": [
+    "gulp",
+    "flashcc",
+    "createjs"
+  ],
+  "author": "dameleon <dameleon@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dameleon/gulp-flashcc-createjs-dataurl/issues"
+  },
+  "homepage": "https://github.com/dameleon/gulp-flashcc-createjs-dataurl",
+  "dependencies": {
+    "gulp-util": "~2.2.19",
+    "through2": "~0.5.1",
+    "lodash": "~2.4.1"
+  }
+}
