@@ -7,7 +7,7 @@ var _ = require('lodash');
 var PluginError = gutil.PluginError;
 
 const IDENT = packageJson.name;
-const MANIFEST_RE = /manifest\s?:\s?(\[[\s\w/\-{}"'.,]*?\])/m;
+const MANIFEST_RE = /manifest\s?:\s?(\[[\s\w\d\/-{}"'.,]*?\])/m;
 const MANIFEST_PREFIX = 'manifest : ';
 const TYPE_REPLACE_TARGET = '%TYPE_REPLACE_TARGET%';
 const MIME_TYPES = {
@@ -16,26 +16,26 @@ const MIME_TYPES = {
     'jpg'  : 'image/jpeg',
     'jpeg' : 'image/jpeg'
 };
-const MIMETYPE_HEADER_MANIFEST_MAP = {
-    'image': 'image',
-    'audio': 'sound'
+const OUTPUT_TYPE = {
+    EMBED: 'embed',
+    JSON:  'json'
 };
 const DEFAULT_PARAMS = {
     basepath: '',
-    outputExtFile: false,
-    extFileSuffix: '_manifest',
+    outputType: OUTPUT_TYPE.EMBED,
+    jsonFileSuffix: '_manifest',
     ignores: null,
-    manifestTypes: {
-        image: 'createjs.LoadQueue.IMAGE',
-        sound: 'createjs.LoadQueue.SOUND',
-        binary: 'createjs.LoadQueue.BINARY',
+    mimeTypeToManifestTypeMap: {
+      'image'  : 'image',
+      'audio'  : 'sound',
+      'binary' : 'binary'
     },
 };
 
 function gulpFlashCcCanvasEmbedDataUrl(option) {
     var settings = _.extend({}, DEFAULT_PARAMS, option || {});
 
-    return through.obj(transform, flush);
+    return through.obj(transform);
 
     function transform(file, encoding, callback) {
         if (file.isNull()) {
@@ -57,7 +57,7 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
             if (_checkIgnoreId(m.id)) {
                 return;
             }
-            var targetFilePath = path.join(settings.basepath, m.src);
+            var targetFilePath = path.join(settings.basepath || file.base, m.src);
 
             if (!fs.existsSync(targetFilePath)) {
                 this.emit('error', new PluginError(IDENT, 'Target file not found'));
@@ -65,25 +65,23 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
             var mimeType = _getMimeTypeByFilePath(targetFilePath);
             var targetFile = fs.readFileSync(targetFilePath);
 
-            manifest.src = _generateDataUrl(targetFile, mimeType);
-            manifest.type = TYPE_REPLACE_TARGET;
+            m.src = _generateDataUrl(targetFile, mimeType);
+            m.type =  _getManifestTypeByMimeType(mimeType);
 
-            var str = JSON.stringify(manifest).replace(new RegExp('"' + TYPE_REPLACE_TARGET + '"', 'gi'), _getManifestTypeByMimeType(mimeType));
+            res.push(m);
+        }, this);
 
-            res.push(str);
-        });
+        res = JSON.stringify(res);
 
-        res = ('[' + res.join(',') + ']');
-
-        if (settings.outputExtFile) {
+        if (settings.outputType === OUTPUT_TYPE.JSON) {
             file = new gutil.File({
                 cwd: file.cwd,
                 base: file.base,
-                path: path.join(path.dirname(file.base), path.basename(file.base) + settings.extFileSuffix + path.extname(file.base)),
-                contents = new Buffer(res);
+                path: path.normalize(file.base + path.basename(file.path, '.js') + settings.jsonFileSuffix + '.json'),
+                contents: new Buffer(res)
             });
         } else {
-            file.contents = new Buffer(contents.replace(MANIFEST_RE, res));
+            file.contents = new Buffer(contents.replace(MANIFEST_RE, MANIFEST_PREFIX + res));
         }
         this.push(file);
     }
@@ -104,9 +102,12 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
 
     function _getManifestTypeByMimeType(mimeType) {
         var mimeHeader = mimeType.split('/')[0];
-        var manifestTypeKey = MIMETYPE_HEADER_MANIFEST_MAP[mimeHeader] || 'binary';
+        var res = settings.mimeTypeToManifestTypeMap[mimeHeader];
 
-        return settings.manifestType[manifestTypeKey];
+        if (!res) {
+            res = settings.mimeTypeToManifestTypeMap.binary;
+        }
+        return res;
     }
 
     function _generateDataUrl(file, mimeType) {
@@ -127,6 +128,8 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
         });
     }
 }
+
+gulpFlashCcCanvasEmbedDataUrl.OUTPUT_TYPE = OUTPUT_TYPE;
 
 module.exports = gulpFlashCcCanvasEmbedDataUrl;
 
