@@ -58,7 +58,7 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
             if (_checkIgnoreId(m.id)) {
                 return;
             }
-            var targetFilePath = path.join(settings.basepath || file.base, m.src);
+            var targetFilePath = path.join(settings.basepath || path.dirname(file.path), m.src);
 
             if (!fs.existsSync(targetFilePath)) {
                 this.emit('error', new PluginError(IDENT, 'Target file not found'));
