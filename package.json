@@ -4,7 +4,8 @@
   "description": "Converted to DataURL, the images of manifest in output from Flash CC for CreateJS.",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test"
+    "setup_develop": "npm install -g tape",
+    "test": "tape test/*.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,8 @@
     "lodash": "~2.4.1"
   },
   "devDependencies": {
-    "gulp": "~3.8.5"
+    "gulp": "~3.8.5",
+    "tape": "~2.13.3",
+    "vinyl": "~0.2.3"
   }
 }

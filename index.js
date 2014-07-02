@@ -8,13 +8,12 @@ var PluginError = gutil.PluginError;
 
 const IDENT = packageJson.name;
 const MANIFEST_RE = /manifest\s?:\s?(\[[\s\w\d\/-{}"'.,]*?\])/m;
-const MANIFEST_PREFIX = 'manifest : ';
-const TYPE_REPLACE_TARGET = '%TYPE_REPLACE_TARGET%';
+const MANIFEST_PREFIX = 'manifest: ';
 const MIME_TYPES = {
-    'png'  : 'image/png',
-    'gif'  : 'image/gif',
-    'jpg'  : 'image/jpeg',
-    'jpeg' : 'image/jpeg'
+    png  : 'image/png',
+    gif  : 'image/gif',
+    jpg  : 'image/jpeg',
+    jpeg : 'image/jpeg'
 };
 const OUTPUT_TYPE = {
     EMBED: 'embed',
@@ -26,9 +25,9 @@ const DEFAULT_PARAMS = {
     jsonFileSuffix: '_manifest',
     ignores: null,
     mimeTypeToManifestTypeMap: {
-      'image'  : 'image',
-      'audio'  : 'sound',
-      'binary' : 'binary'
+        image  : 'image',
+        audio  : 'sound',
+        binary : 'binary'
     },
 };
 
@@ -41,8 +40,10 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
         if (file.isNull()) {
             this.push(file);
             callback();
+            return;
         } else if (file.isStream()) {
             this.emit('error', new PluginError(IDENT, 'Streaming not supported'));
+            return;
         }
         var contents = file.contents.toString('utf8');
         var matched = MANIFEST_RE.exec(contents);
@@ -77,16 +78,13 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
             file = new gutil.File({
                 cwd: file.cwd,
                 base: file.base,
-                path: path.normalize(file.base + path.basename(file.path, '.js') + settings.jsonFileSuffix + '.json'),
+                path: path.join(file.base, path.basename(file.path, '.js') + settings.jsonFileSuffix + '.json'),
                 contents: new Buffer(res)
             });
         } else {
             file.contents = new Buffer(contents.replace(MANIFEST_RE, MANIFEST_PREFIX + res));
         }
         this.push(file);
-    }
-
-    function flush(callback) {
         callback();
     }
 
@@ -111,14 +109,14 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
     }
 
     function _generateDataUrl(file, mimeType) {
-        return ['data:', mimeType, ';base64,' + new Buffer(file).toString('base64')].join();
+        return ['data:', mimeType, ';base64,' + new Buffer(file).toString('base64')].join('');
     }
 
     function _checkIgnoreId(id) {
         if (!settings.ignores) {
             return false;
         }
-        return ignore.some(function(target) {
+        return settings.ignores.some(function(target) {
             if (_.isString(target)) {
                 target = new RegExp(target);
             }
