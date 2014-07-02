@@ -1,4 +1,4 @@
-gulp-flashcc-createjs-dataurl
+gulp-flashcc-createjs-dataurl  [![Build Status](https://secure.travis-ci.org/dameleon/gulp-flashcc-createjs-dataurl.png?branch=master)](http://travis-ci.org/dameleon/gulp-flashcc-createjs-dataurl)
 =============================
 
 Converted to DataURL, the images of manifest in output from Flash CC for CreateJS.
