@@ -1,6 +1,6 @@
 {
   "name": "gulp-flashcc-createjs-dataurl",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Converted to DataURL, the images of manifest in output from Flash CC for CreateJS.",
   "main": "index.js",
   "scripts": {
