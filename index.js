@@ -49,7 +49,7 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
         var matched = MANIFEST_RE.exec(contents);
 
         if (!matched || matched.length < 2) {
-            gutil.log('Undefined manifest in file: ' + file.base);
+            gutil.log('Undefined manifest in file: ' + file.path);
             this.push(file);
             callback();
             return;
