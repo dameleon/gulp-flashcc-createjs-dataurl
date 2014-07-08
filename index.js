@@ -49,7 +49,10 @@ function gulpFlashCcCanvasEmbedDataUrl(option) {
         var matched = MANIFEST_RE.exec(contents);
 
         if (!matched || matched.length < 2) {
-            this.emit('error', new PluginError(IDENT, 'Manifests not found'));
+            gutil.log('Undefined manifest in file: ' + file.base);
+            this.push(file);
+            callback();
+            return;
         }
         var manifests = eval(matched[1]);
         var res = [];
